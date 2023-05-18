@@ -37,11 +37,10 @@ def login():
             sb = EmployeeProfileDAL()
             EmployeeName = (sb.get_current_employee_Info(corpid))
             print(f'EmployeeName : {EmployeeName}')
-            print(f'os.getLogin() : {os.getlogin()}')
             rowReturn = sb.read_employee()
             loginfailedmsg = "Invalid credentials"
             projectList=get_project_list()
-            if corpid == os.getlogin():
+            if corpid:
                 if request.method == 'POST':
                     session.pop('user', None)
                     if EmployeeName:
