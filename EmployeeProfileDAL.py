@@ -8,7 +8,7 @@ from datetime import timedelta,date, datetime
 
 class EmployeeProfileDAL:
     def __init__(self):
-        DATABASE = "DBN\\LeaveApp.db"  # DB file initialization
+        DATABASE = "LeaveApp.db"  # DB file initialization
         self.conn_db = sqlite3.connect(DATABASE)  # connection opening  instantiation
         print("open database successfully")
         self.c = self.conn_db.cursor()
