@@ -35,7 +35,7 @@ def login():
             corpid=request.form['corpId']
             corppass = request.form['corppass']
             sb = EmployeeProfileDAL()
-            EmployeeName = (sb.get_current_employee_Info(corpid))[0][0]
+            EmployeeName = (sb.get_current_employee_Info(corpid))
             print(f'EmployeeName : {EmployeeName}')
             print(f'os.getLogin() : {os.getlogin()}')
             rowReturn = sb.read_employee()
