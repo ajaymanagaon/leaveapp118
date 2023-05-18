@@ -8,18 +8,12 @@ from flask import render_template
 import os
 import datetime as importDateTime
 from datetime import timedelta,date, datetime
-import calendar
 from calendar import monthrange
 from calendar import mdays
-import schedule
-import time
 from shutil import copy
 from flask import Response
 from flask import session,g
-import logging
 from logging.handlers import RotatingFileHandler
-import ctypes
-import itertools
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
