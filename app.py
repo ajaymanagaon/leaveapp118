@@ -89,7 +89,102 @@ def list_all_users():
             return render_template("Dashboard.html", rowTable=row_return, **locals())
         else:
             return render_template("Dashboard.html", rowTable=row_return, EmployeeName=EmployeeName,corpid=corpid, projectList=projectList, employeeLevelList = employeeLevelList)
-    return redirect(url_for('/'))
+    return redirect(url_for('home'))
+
+
+@app.route('/add profile', methods=['POST'])
+def add_profile():
+    if 'user' in session:
+        employee_id = request.form['employeeId']
+        employee_name = request.form['employeeName']
+        project_name = request.form['ProjectName']
+        corpid = session['user']
+        email = request.form['Mail']
+        corp_idM = request.form['CorpID']
+        department = request.form['Department']
+        employeeODCStatus="Assigned"
+        expertise=request.form['Expertise']
+        employeeLevel=request.form['EmployeeLevel']
+        sb = EmployeeProfileDAL()
+        project_id = sb.get_project_id(project_name=project_name)
+        EmployeeName = corpid
+        employee = Employee(employee_id, employee_name, project_id, project_name, corp_idM, email, department, employeeODCStatus,expertise, employeeLevel)
+        sb.add_employee(employee)
+        rowReturn = sb.read_employee()
+        sb.c.close()
+        projectList = get_project_list()
+        employeeLevelList = get_employeeLevel_list()
+        app.logger.info('%s added by: %s',employee_id, corpid)
+        AdminReturn = Admin()
+        if AdminReturn == "Yes":
+            return render_template("Dashboard.html", rowTable=rowReturn, **locals())
+        else:
+            return render_template("Dashboard.html", rowTable=rowReturn, EmployeeName=EmployeeName, employee=employee, corpid=corpid,projectList=projectList, employeeLevelList = employeeLevelList)
+    return redirect(url_for('home'))
+
+
+
+@app.route('/Update profile/0', methods=['POST'])
+def update_profile():
+    # Create cursor
+    if 'user' in session:
+        sb = EmployeeProfileDAL()
+        corpid = session['user']
+        # EmployeeName = (sb.get_current_employee_Info(corpid))[0][0]
+        EmployeeName = corpid
+        employee_id = request.form['employeeId']
+        employee_name = request.form['employeeName']
+        project_name = request.form['projectNameUpdate']
+        corpIdM = request.form['corpIdUpdate']
+        email = request.form['emailIdUpdate']
+        employeeODCStatus= 'Assigned'
+        department = request.form['DepartmentUpdate']
+        expertise = request.form['expertiseUpdateName']
+        employeeLevelUpdate = request.form['employeeLevelUpdate']
+        project_id = sb.get_project_id(project_name=project_name)
+        employee = Employee(employee_id, employee_name, project_id, project_name, corpIdM, email, department, employeeODCStatus,expertise, employeeLevelUpdate)
+        sb.update_employee(employee)
+        rowReturn = sb.read_employee()
+        sb.c.close()
+        print("DataBase is closed")
+        projectList = get_project_list()
+        employeeLevelList = get_employeeLevel_list()
+        # return "Values Submitted to database"
+        app.logger.info('%s updated profile details', corpid)
+        AdminReturn = Admin()
+        if AdminReturn == "Yes":
+            return render_template("Dashboard.html", rowTable=rowReturn, **locals())
+        else:
+            return render_template("Dashboard.html", rowTable=rowReturn, EmployeeName=EmployeeName, employee=employee,projectList=projectList, employeeLevelList = employeeLevelList)
+    return redirect(url_for('home'))
+
+
+@app.route('/compare', methods=['POST'])
+def compare():
+    print("inside compare method serverside validation")
+    formElement = request.json
+    # print(type(formElement))
+    # print(request.get_json())
+    sb = EmployeeProfileDAL()
+    for keyFromDict in formElement:
+        key = keyFromDict
+    # gettting id from DB
+    idFromDB = sb.gettingEmployeeDetailsForRepeatedEntries(formElement)
+    # comparing id for duplicate entries
+    if idFromDB == 1:
+        msg = key + " is already exist in the system.Please try another."
+        return jsonify({'error': msg})
+    else:
+        return jsonify({'success': 'true'})
+
+
+
+
+
+
+
+
+
 
 
 
