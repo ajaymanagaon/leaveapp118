@@ -74,6 +74,24 @@ def viewTeamfun():
     return render_template('login.html', **locals())
 
 
+@app.route('/employee details')
+def list_all_users():
+    if 'user' in session:
+        sb = EmployeeProfileDAL()
+        corpid=session['user']
+        EmployeeName = corpid
+        row_return = sb.read_employee()
+        projectList = get_project_list()
+        employeeLevelList = get_employeeLevel_list()
+        app.logger.info('Employee Details page viewed by : %s', corpid)
+        AdminReturn = Admin()
+        if AdminReturn == "Yes":
+            return render_template("Dashboard.html", rowTable=row_return, **locals())
+        else:
+            return render_template("Dashboard.html", rowTable=row_return, EmployeeName=EmployeeName,corpid=corpid, projectList=projectList, employeeLevelList = employeeLevelList)
+    return redirect(url_for('/'))
+
+
 
 
 # private methods
@@ -100,6 +118,13 @@ def Admin():
             pass
             return "Yes"
     return "No"
+
+def get_employeeLevel_list():
+    employeeLevelList = []
+    for value in ReadJson()['EmployeeLevelDetails']:
+        employeeLevelList.append(value['levelName'])
+    return employeeLevelList
+
 
 if __name__ == '__main__':
    app.run(host='0.0.0.0',port=80)
