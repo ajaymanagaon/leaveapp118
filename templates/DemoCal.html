@@ -63,7 +63,7 @@
              </li>
              {% if "Yes" in AdminReturn%}
                 <li class="nav-item">
-                    <a class="nav-link" href="/viewteam"><b>ManagerSpot</b></a>
+                    <a class="nav-link" href="/viewteam"><b>OrgOperations</b></a>
                 </li>
              {% endif %}
              <li class="nav-item">
@@ -77,11 +77,10 @@
           </form>
         </div>
     </nav><hr>
-<div class="container" style="width:100vh">
-  <div id='personalCalendar' >
+
+  <div id='calendar' >
       <!--<div class="fc-body" data-toggle="modal" data-target="#exampleModal"></div>-->
   </div>
-</div>
     <div class="row">
         <div class="col-md-12" style="padding-left:525px">
         <label>FullDay Leave</label>
@@ -108,9 +107,8 @@
 		        </button>
 		      </div>
 		      <div class="modal-body">
-		        <button type="button" id="FullDayEmployee"  class="btn btn-primary" data-dismiss="modal">FullDay</button>
-                <button type="button" id="HalfDayEmployee"  class="btn btn-primary " data-dismiss="modal">HalfDay</button>
-                  <button type="button" id="Non-WIPL"  class="btn btn-primary " data-dismiss="modal">Non-WIPL</button>
+		        <button type="button" id="perleavesubmit"  class="btn btn-primary" data-dismiss="modal">FullDay</button>
+                <button type="button" id="perleavesubmitHalfDay"  class="btn btn-primary " data-dismiss="modal">HalfDay</button>
 		      </div>
 		      <div class="modal-footer">
 		        <!--<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>-->
@@ -189,7 +187,7 @@
                   </div>
                   <div class="modal-body">
                             <div class="form-group">
-                                <b>Version:1.1.5</b><br>
+                                <b>Version:1.1.2</b><br>
                                 Date: 14th June 2018<hr>
                                 <br>
                                 Description: Leave Application Portal
@@ -206,9 +204,10 @@
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.css" />
 
 
 <script>

@@ -13,6 +13,7 @@ var options = {
 //var user
   $(document).ready(function() {
 
+
         $("#FullDayEmployee").on('click',function(){
             HoldOn.open(options)
             console.log("inside submitevent for fullday a = " + a );

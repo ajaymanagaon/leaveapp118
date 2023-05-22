@@ -37,6 +37,7 @@ def login():
             corppass = request.form['corppass']
             sb = EmployeeProfileDAL()
             EmployeeName = (sb.get_current_employee_Info(corpid))
+            print(f'EmployeeName : {EmployeeName}')
             rowReturn = sb.read_employee()
             loginfailedmsg = "Invalid credentials"
             projectList=get_project_list()
@@ -64,6 +65,7 @@ def viewTeamfun():
         corp_id=session['user']
         sb=EmployeeProfileDAL()
         EmployeeName=sb.get_current_employee_Info(corp_id)[0][0]
+        print("In view team")
         AdminReturn = Admin()
         if AdminReturn == "Yes":
             return render_template("viewteam.html", **locals())
@@ -75,23 +77,20 @@ def viewTeamfun():
 
 @app.route('/employee details')
 def list_all_users():
-    try:
-        if 'user' in session:
-            sb = EmployeeProfileDAL()
-            corpid=session['user']
-            EmployeeName = corpid
-            row_return = sb.read_employee()
-            projectList = get_project_list()
-            employeeLevelList = get_employeeLevel_list()
-            app.logger.info('Employee Details page viewed by : %s', corpid)
-            AdminReturn = Admin()
-            if AdminReturn == "Yes":
-                return render_template("Dashboard.html", rowTable=row_return, **locals())
-            else:
-                return render_template("Dashboard.html", rowTable=row_return, EmployeeName=EmployeeName,corpid=corpid, projectList=projectList, employeeLevelList = employeeLevelList)
-        return redirect(url_for('home'))
-    except Exception as e:
-        return str(e)
+    if 'user' in session:
+        sb = EmployeeProfileDAL()
+        corpid=session['user']
+        EmployeeName = corpid
+        row_return = sb.read_employee()
+        projectList = get_project_list()
+        employeeLevelList = get_employeeLevel_list()
+        app.logger.info('Employee Details page viewed by : %s', corpid)
+        AdminReturn = Admin()
+        if AdminReturn == "Yes":
+            return render_template("Dashboard.html", rowTable=row_return, **locals())
+        else:
+            return render_template("Dashboard.html", rowTable=row_return, EmployeeName=EmployeeName,corpid=corpid, projectList=projectList, employeeLevelList = employeeLevelList)
+    return redirect(url_for('home'))
 
 
 @app.route('/add profile', methods=['POST'])
@@ -148,6 +147,7 @@ def update_profile():
         sb.update_employee(employee)
         rowReturn = sb.read_employee()
         sb.c.close()
+        print("DataBase is closed")
         projectList = get_project_list()
         employeeLevelList = get_employeeLevel_list()
         # return "Values Submitted to database"
@@ -159,20 +159,13 @@ def update_profile():
             return render_template("Dashboard.html", rowTable=rowReturn, EmployeeName=EmployeeName, employee=employee,projectList=projectList, employeeLevelList = employeeLevelList)
     return redirect(url_for('home'))
 
-@app.route('/deleteEmployee',methods=['GET'])
-def deleteemp():
-    if 'user' in session:
-        print(f"Delete Request Initiated for Employee Id : {request.args['employeeId']}")
-        employeeId = request.args['employeeId']
-        sb = EmployeeProfileDAL()
-        delete_status = sb.delete_employee(employeeId)
-        return delete_status
-
-
 
 @app.route('/compare', methods=['POST'])
 def compare():
+    print("inside compare method serverside validation")
     formElement = request.json
+    # print(type(formElement))
+    # print(request.get_json())
     sb = EmployeeProfileDAL()
     for keyFromDict in formElement:
         key = keyFromDict
@@ -188,6 +181,7 @@ def compare():
 @app.route('/personalLeave')
 def personalLeave():
     if 'user' in session:
+        print("personalLeave")
         corpid = session['user']
         sb = EmployeeProfileDAL()
         EmployeeName=(sb.get_current_employee_Info(corpid))[0][0]
@@ -220,6 +214,7 @@ def getCurrentUser():
 @app.route('/applyLeave' ,methods=["POST", "GET"])
 def applyLeave():
     if 'user' in session:
+        print("applyLeave")
         date = request.form['Date']
         leaveType=request.form['LeaveType']
         corpid=request.form['CorpID']
@@ -236,12 +231,15 @@ def jsondata():
     with open("static/json/pi.json",'r', encoding='utf-8-sig') as json_file:
         json_data = json.load(json_file)
         sb=EmployeeProfileDAL()
+        print("-----------------------------------")
+        print("-----------------------------------")
     return jsonify(json_data)
 
 
 @app.route('/labRequest')
 def labRequest():
     if 'user' in session:
+        print("personalLeave")
         corpid = session['user']
         sb = EmployeeProfileDAL()
         EmployeeName=(sb.get_current_employee_Info(corpid))[0][0]
@@ -271,30 +269,8 @@ def add_lab_request():
         sb.add_lab_request(request_description,EmployeeName,project_name, today, id)
         rowReturn = sb.read_lab_requests()
         rowTable = sb.read_lab_requests()
-        AdminReturn = Admin()
-        if AdminReturn == "Yes":
-          return render_template('Lab.html', **locals())
-        else:
-            return render_template('Lab.html', EmployeeName=EmployeeName,corpid=corpid, projectList=projectList, rowTable=rowTable)
+        return render_template('Lab.html',EmployeeName=EmployeeName,corpid=corpid, projectList=projectList, rowTable=rowTable)
     return render_template('login.html', **locals())
-
-@app.route('/Delete Request', methods=['POST'])
-def delete_lab_request():
-    try:
-        corpid = session['user']
-        sb = EmployeeProfileDAL()
-        EmployeeName = (sb.get_current_employee_Info(corpid))[0][0]
-        request_id = request.form['requestId']
-        sb.delete_lab_request(request_id)
-        rowTable = sb.read_lab_requests()
-        projectList = get_project_list()
-        AdminReturn = Admin()
-        if AdminReturn == "Yes":
-          return render_template('Lab.html', **locals())
-        else:
-            return render_template('Lab.html', EmployeeName=EmployeeName,corpid=corpid, projectList=projectList, rowTable=rowTable)
-    except Exception as e:
-        return str(e)
 
 
 @app.route('/teambuilder')
@@ -317,6 +293,7 @@ def showdataforManagers():
             EmployeeDetails = sb.read_employee_in_dict()
             return jsonify(EmployeeDetails)
         else:
+            print("came in post of orgDetails")
             formElement = request.json
             sb = EmployeeProfileDAL()
             result=sb.AssiningToManager(manager_id, formElement)
@@ -339,6 +316,7 @@ def updateEmployeeStatus():
 @app.route('/getsetviewdata',methods=['GET', 'POST'])
 def getsetDataforteam():
     if 'user' in session:
+        print("In getsetData")
         corp_id = session['user']
         obj = EmployeeProfileDAL()
         EmployeeName=obj.get_current_employee_Info(corp_id)[0][0]
@@ -350,107 +328,9 @@ def getsetDataforteam():
 
 
 
-@app.route('/currentMonth')
-def currentMonthDetails():
-    try:
-        if 'user' in session:
-                # and (session['user'] == "conngo" or session['user'] == "consys" or session["user"] == "conddas" or session["user"] == "conravh" ):
-            corpid = session['user']
-            #now = datetime.datetime.now()
-            v = request.args.get('mon')
-            if v is not None:
-                v = v.split("-")
-                sb = EmployeeProfileDAL()
-                EmployeeName = (sb.get_current_employee_Info(corpid))[0][0]
-                d = importDateTime.date.today()
-                month = v[1]
-                year = v[0]
-                dateArray = []
-                dateArray = dateArrayMethod(int(year), int(month))
-                employeeStatusListView = gettingInfo(month, int(year))
-                AdminReturn = Admin()
-                if AdminReturn == "Yes":
-                    return render_template("LeaveAppPart2.html", **locals())
-                else:
-                    return render_template("LeaveAppPart2.html",dateArray=dateArray,employeeStatusListView=employeeStatusListView, EmployeeName=EmployeeName, corpid=corpid)
-            else:
-                sb = EmployeeProfileDAL()
-                EmployeeName = (sb.get_current_employee_Info(corpid))[0][0]
-                d = importDateTime.date.today()
-                month = d.strftime('%m')
-                year = d.strftime('%Y')
-                dateArray = []
-                dateArray = dateArrayMethod(int(year), int(month))
-                employeeStatusListView = []
-                employeeStatusListView = gettingInfo(month, int(year))
-                AdminReturn = Admin()
-                if AdminReturn == "Yes":
-                    for employeelist in employeeStatusListView:
-                        for value in employeelist:
-                            if value is None:
-                                print(employeelist[2])
-                    return render_template("LeaveAppPart2.html", **locals())
-                else:
-                    return render_template("LeaveAppPart2.html", dateArray=dateArray,
-                                           employeeStatusListView=employeeStatusListView, EmployeeName=EmployeeName,
-                                           corpid=corpid)
-        return render_template('login.html', **locals())
-    except Exception as e:
-        return str(e)
 
 
 
-
-@app.route('/monthlyOtherDeductions')
-def monthlyOtherDeductions():
-    try:
-        if 'user' in session:
-            # and (session['user'] == "conngo" or session['user'] == "consys" or session["user"] == "conddas" or session["user"] == "conravh" ):
-            corpid = session['user']
-            # now = datetime.datetime.now()
-            v = request.args.get('mon')
-            if v is not None:
-                v = v.split("-")
-                sb = EmployeeProfileDAL()
-                EmployeeName = (sb.get_current_employee_Info(corpid))[0][0]
-                d = importDateTime.date.today()
-                month = v[1]
-                year = v[0]
-                dateArray = []
-                dateArray = dateArrayMethod(int(year), int(month))
-                # getting selected month
-                # total days in current month
-                employeeStatusListView = []
-                employeeStatusListView = gettingOtherDeductionsInfo(month, int(year))
-                AdminReturn = Admin()
-                if AdminReturn == "Yes":
-                    return render_template("OtherDeductions.html", **locals())
-                else:
-                    return render_template("OtherDeductions.html", dateArray=dateArray,
-                                           employeeStatusListView=employeeStatusListView, EmployeeName=EmployeeName,
-                                           corpid=corpid)
-            else:
-                sb = EmployeeProfileDAL()
-                EmployeeName = (sb.get_current_employee_Info(corpid))[0][0]
-                d = importDateTime.date.today()
-                month = d.strftime('%m')
-                year = d.strftime('%Y')
-                dateArray = []
-                dateArray = dateArrayMethod(int(year), int(month))
-                # getting selected month
-                # total days in current month
-                employeeStatusListView = []
-                employeeStatusListView = gettingOtherDeductionsInfo(month, int(year))
-                AdminReturn = Admin()
-                if AdminReturn == "Yes":
-                    return render_template("OtherDeductions.html", **locals())
-                else:
-                    return render_template("OtherDeductions.html", dateArray=dateArray,
-                                           employeeStatusListView=employeeStatusListView, EmployeeName=EmployeeName,
-                                           corpid=corpid)
-        return render_template('login.html', **locals())
-    except Exception as e:
-        return str(e)
 
 
 
@@ -478,6 +358,7 @@ def Admin():
     managers_corpid = []
     for cid in ReadJson()['ManagersList']:
         managers_corpid.append(cid['CorpID'])
+    print(managers_corpid)
     for value in managers_corpid:
         if session['user'] == value:
             pass
@@ -489,195 +370,6 @@ def get_employeeLevel_list():
     for value in ReadJson()['EmployeeLevelDetails']:
         employeeLevelList.append(value['levelName'])
     return employeeLevelList
-
-
-def dateArrayMethod(year, month):
-    dateArray = []
-    dict = {'0': 'Mon', '1': 'Tue', '2': 'Wed', '3': 'Thu', '4': 'Fri', '5': 'Sat', '6': 'Sun'}
-    cal = calendar.Calendar()
-
-    for x in cal.itermonthdays2(year, month):
-        if x[0] != 0:
-            dateArray.append(calendar.month_name[month][:3] + " " + str(x[0]) + " " + dict[str(x[1])])
-    return dateArray
-
-
-def gettingInfo(month,year):
-    #corpid=session['user']
-    today = date.today()
-    numOfDays = calendar.monthrange(year, int(month))
-    numOfDaysCfCurrentMonth = numOfDays[1]
-    sb = EmployeeProfileDAL()
-    # EmployeeName = (sb.get_current_employee_Info(corpid))[0][0]
-    employee_list = sb.read_employee()
-    employeeStatusListView = []
-    HolidayList = []
-    HolidayMonth = []
-    HolidayDates = []
-    listOfDays = list(range(1, numOfDaysCfCurrentMonth+1))
-    # get the current month
-    # get the month from holiday
-    # and compare
-    dateArray = dateArrayMethod(year, int(month))
-    i=0
-    for value in ReadJson()['waters holidays']:
-        HolidayList.append(value['date'].split("/"))
-        HolidayMonth.append(HolidayList[i][1])
-        # filter out the dates of relevent month
-        if month in HolidayMonth:
-            if HolidayList[i][1] == month:
-                HolidayDates.append(int(HolidayList[i][0]))
-                # getHolidayDates
-        i=i+1
-
-    for employee in employee_list:
-        employeeWorkStatus = []
-        counterForOn = 0
-        # employeeWorkStatus.append(str(employee[7]))
-        employeeWorkStatus.append(str(employee[0]))
-        employeeWorkStatus.append(str(employee[1]))
-        employeeWorkStatus.append(employee[2])
-        employeeWorkStatus.append(employee[3])
-        employeeWorkStatus.append(employee[4])
-        employeeWorkStatus.append(employee[5])
-        employeeWorkStatus.append(" ")
-        employeeWorkStatus.append(" ")
-        employeeWorkStatus.append(" ")
-        employeeWorkStatus.append(" ")
-
-        with open("static/json/pi.json", 'r', encoding='utf-8-sig') as json_file:
-            json_data = json.load(json_file)
-
-        dateArray = dateArrayMethod(year,int(month))
-        
-
-        for i in range(numOfDaysCfCurrentMonth):
-            dateloop = date(year,int(month),i+1)
-            if dateArray[i][-3:] == 'Sat' or dateArray[i][-3:] == 'Sun' or (i+1 in HolidayDates) or (dateloop > today):
-                employeeWorkStatus.append(" ")
-            else:
-                employeeWorkStatus.append("Present")
-                counterForOn += 1
-
-
-        employee_leave_list = sb.read_leaves_type(employee[7], month, year)
-        if employee_leave_list is not None:
-            counterForFullDay = 0
-            counterForHalfDay = 0
-            for leave in employee_leave_list:
-                numOfDays = calendar.monthrange(year, int(month))
-                numOfDaysCfCurrentMonth = numOfDays[1]
-                leave_date = str(leave[0])                
-                leave_type = leave[1]                
-                leavedate = leave_date.split('/')                
-                if leave_type == '1' or leave_type == '4':                    
-                    employeeWorkStatus[int(leavedate[0]) + 8] = 'FullDayLeave'
-                    counterForFullDay += 1                    
-                elif leave_type == '2' or leave_type == '5':
-                    employeeWorkStatus[int(leavedate[0]) + 8] = 'HalfDayLeave'
-                    counterForHalfDay += 1
-                elif leave_type == '3':
-                    employeeWorkStatus[int(leavedate[0]) + 8] = 'Non-WIPL'
-                    # counterForHalfDay += 1
-        totalDayOfFullDays = counterForFullDay
-        totalDayOfHalfDays = counterForHalfDay
-        totalhoursofWork = (counterForOn*8 - (counterForFullDay*8 + counterForHalfDay*4))
-        employeeWorkStatus.append(" ")
-        employeeWorkStatus.append(str(totalDayOfFullDays))
-        employeeWorkStatus.append(str(totalDayOfHalfDays))
-        employeeWorkStatus[7] = str(totalhoursofWork)
-        employeeWorkStatus[5] = str(round(21.85 * totalhoursofWork, 1))
-        employeeWorkStatus[6] = str(21.85)
-        employeeStatusListView.append(employeeWorkStatus)
-    return employeeStatusListView
-
-
-def gettingOtherDeductionsInfo(month, year):
-    # corpid=session['user']
-    numOfDays = calendar.monthrange(year, int(month))
-
-    startDate =  "1-" + str(month) +"-" + str(year)
-    endDate = str(numOfDays[1]) + "-" + str(month) +"-" + str(year)
-
-    otherDeductions = []
-    for value in ReadJson()['OtherDeductions']:
-        otherDeductions.append(value['PaymentRecovery'])
-        otherDeductions.append(value['Amount'])
-        otherDeductions.append(value['PaymentRecoveryTowards'])
-        otherDeductions.append(value['LetterToBeIssued'])
-        otherDeductions.append(value['ApprovalAttached'])
-        otherDeductions.append(value['NameOftheAttachment'])
-        otherDeductions.append(value['ApproverName'])
-        otherDeductions.append(value['RemarksReason'])
-        otherDeductions.append(value['TypeOfDeduction'])
-        otherDeductions.append(value['MinimumWorkDays'])
-
-
-    numOfDaysCfCurrentMonth = numOfDays[1]
-    sb = EmployeeProfileDAL()
-    # EmployeeName = (sb.get_current_employee_Info(corpid))[0][0]
-
-
-    employee_list = sb.read_employee()
-    employeeStatusListView = []
-    for employee in employee_list:
-        employeeWorkStatus = []
-        counterForOn = 0
-        dateArray = dateArrayMethod(year, int(month))
-        for i in range(numOfDaysCfCurrentMonth):
-            if dateArray[i][-3:] == 'Sat' or dateArray[i][-3:] == 'Sun':
-                test = " "
-            else:
-                counterForOn += 1
-
-        employee_leave_list = sb.read_leaves_type(employee[7], month, year)
-        if employee_leave_list is not None:
-            counterForFullDay = 0
-            counterForHalfDay = 0
-            for leave in employee_leave_list:
-                numOfDays = calendar.monthrange(year, int(month))
-                numOfDaysCfCurrentMonth = numOfDays[1]
-                leave_date = str(leave[0])
-                leave_type = leave[1]
-                leavedate = leave_date.split('/')
-                if leave_type == '1':
-                    counterForFullDay += 1  #full day leave
-                else:
-                    counterForHalfDay += 1 #half day leave
-        totalDayOfFullDays = counterForFullDay
-        totalDayOfHalfDays = counterForHalfDay
-        totalhoursofWork = 0
-        totalhoursofWork = (counterForOn * 8 - (counterForFullDay * 8 + counterForHalfDay * 4))
-        if(totalhoursofWork < (int(otherDeductions[9]) * 8)):   #if work days is less than 7 days
-            continue
-        else:
-            employeeWorkStatus.append(str(employee[1]))
-            employeeWorkStatus.append(otherDeductions[0])
-            employeeWorkStatus.append(employee[2])
-            employeeWorkStatus.append(otherDeductions[1])
-            employeeWorkStatus.append(startDate)
-            employeeWorkStatus.append(endDate)
-            employeeWorkStatus.append(otherDeductions[2])
-            employeeWorkStatus.append(otherDeductions[3])
-            employeeWorkStatus.append(otherDeductions[4])
-            employeeWorkStatus.append(otherDeductions[5])
-            employeeWorkStatus.append(otherDeductions[6])
-            employeeWorkStatus.append(otherDeductions[7])
-            employeeStatusListView.append(employeeWorkStatus)
-    return employeeStatusListView
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
