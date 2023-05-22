@@ -272,6 +272,73 @@ def add_lab_request():
     return render_template('login.html', **locals())
 
 
+@app.route('/teambuilder')
+def CreateOrg():
+    if 'user' in session:
+        corpid = session['user']
+        sb=EmployeeProfileDAL()
+        EmployeeName = (sb.get_current_employee_Info(corpid))[0][0]
+        return render_template("CreateOrg.html", **locals())
+    return render_template('login.html', **locals())
+
+
+@app.route('/orgDetails',methods=['GET', 'POST'])
+def showdataforManagers():
+    if 'user' in session:
+        corp_id=session['user']
+        sb = EmployeeProfileDAL()
+        manager_id = (sb.get_current_employee_Info(corp_id))[0][2]
+        if request.method == 'GET':
+            EmployeeDetails = sb.read_employee_in_dict()
+            return jsonify(EmployeeDetails)
+        else:
+            print("came in post of orgDetails")
+            formElement = request.json
+            sb = EmployeeProfileDAL()
+            result=sb.AssiningToManager(manager_id, formElement)
+            return jsonify({"result": result})
+    return render_template('login.html', **locals())
+
+
+@app.route('/updateStatus',methods=["GET","POST"])
+def updateEmployeeStatus():
+    if 'user' in session:
+        if request.method=="POST":
+            formElement = request.json
+            corp_id = session['user']
+            sb = EmployeeProfileDAL()
+            manager_id = (sb.get_current_employee_Info(corp_id))[0][2]
+            status=sb.update_status(formElement)
+            return jsonify(status)
+    return render_template('login.html', **locals())
+
+@app.route('/getsetviewdata',methods=['GET', 'POST'])
+def getsetDataforteam():
+    if 'user' in session:
+        print("In getsetData")
+        corp_id = session['user']
+        obj = EmployeeProfileDAL()
+        EmployeeName=obj.get_current_employee_Info(corp_id)[0][0]
+        manager_id = (obj.get_current_employee_Info(corp_id))[0][2]
+        if request.method == 'GET':
+            orglist = obj.gettingAssignedEmployeeToManager(manager_id=manager_id)
+            return jsonify(orglist)
+    return render_template('login.html', **locals())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # private methods
 def get_project_list():
     projectList = []

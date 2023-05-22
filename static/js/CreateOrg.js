@@ -68,18 +68,6 @@ function gettingEmployeeData(){
 
 
 $("#orgTable").on("click","tr",function() {
-//            var checkBoxes = $(".dt-checkboxes");
-//            checkBoxes.prop("checked", !checkBoxes.prop("checked"));
-//            var currentRow = $(this).find("td input").val()
-//            console.log(currentRow)
-//
-//            if($(this).find("input[type='checkbox']").is(':checked')){
-//                $(this).find("input[type='checkbox']").attr("checked",false)
-//            }
-//            else{
-//                $(this).find("input[type='checkbox']").attr("checked",true)
-//            }
-
         })
 
 $("#orgTable").on("click",".paginate_button",function(){
