@@ -84,7 +84,7 @@ $('#btnDeleteYes').click(function(){
         },
         success: function (response) {
             if(response == 'employee deleted'){
-                window.location = "/profile"
+                window.location = "/employee details"
             }
         },
         error: function (jqXHR, error) {

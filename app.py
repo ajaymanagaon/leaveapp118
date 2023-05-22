@@ -156,6 +156,16 @@ def update_profile():
             return render_template("Dashboard.html", rowTable=rowReturn, EmployeeName=EmployeeName, employee=employee,projectList=projectList, employeeLevelList = employeeLevelList)
     return redirect(url_for('home'))
 
+@app.route('/deleteEmployee',methods=['GET'])
+def deleteemp():
+    if 'user' in session:
+        print(f"Delete Request Initiated for Employee Id : {request.args['employeeId']}")
+        employeeId = request.args['employeeId']
+        sb = EmployeeProfileDAL()
+        delete_status = sb.delete_employee(employeeId)
+        return delete_status
+
+
 
 @app.route('/compare', methods=['POST'])
 def compare():
@@ -258,8 +268,30 @@ def add_lab_request():
         sb.add_lab_request(request_description,EmployeeName,project_name, today, id)
         rowReturn = sb.read_lab_requests()
         rowTable = sb.read_lab_requests()
-        return render_template('Lab.html',EmployeeName=EmployeeName,corpid=corpid, projectList=projectList, rowTable=rowTable)
+        AdminReturn = Admin()
+        if AdminReturn == "Yes":
+          return render_template('Lab.html', **locals())
+        else:
+            return render_template('Lab.html', EmployeeName=EmployeeName,corpid=corpid, projectList=projectList, rowTable=rowTable)
     return render_template('login.html', **locals())
+
+@app.route('/Delete Request', methods=['POST'])
+def delete_lab_request():
+    try:
+        corpid = session['user']
+        sb = EmployeeProfileDAL()
+        EmployeeName = (sb.get_current_employee_Info(corpid))[0][0]
+        request_id = request.form['requestId']
+        sb.delete_lab_request(request_id)
+        rowTable = sb.read_lab_requests()
+        projectList = get_project_list()
+        AdminReturn = Admin()
+        if AdminReturn == "Yes":
+          return render_template('Lab.html', **locals())
+        else:
+            return render_template('Lab.html', EmployeeName=EmployeeName,corpid=corpid, projectList=projectList, rowTable=rowTable)
+    except Exception as e:
+        return str(e)
 
 
 @app.route('/teambuilder')
@@ -411,8 +443,6 @@ def monthlyOtherDeductions():
                                        employeeStatusListView=employeeStatusListView, EmployeeName=EmployeeName,
                                        corpid=corpid)
     return render_template('login.html', **locals())
-
-
 
 
 
