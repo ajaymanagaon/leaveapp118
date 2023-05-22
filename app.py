@@ -522,7 +522,7 @@ def gettingInfo(month,year):
                 counterForOn += 1
 
 
-        employee_leave_list = sb.read_leaves_type(employee[6], month, year)
+        employee_leave_list = sb.read_leaves_type(employee[7], month, year)
         if employee_leave_list is not None:
             counterForFullDay = 0
             counterForHalfDay = 0
@@ -592,7 +592,7 @@ def gettingOtherDeductionsInfo(month, year):
             else:
                 counterForOn += 1
 
-        employee_leave_list = sb.read_leaves_type(employee[6], month, year)
+        employee_leave_list = sb.read_leaves_type(employee[7], month, year)
         if employee_leave_list is not None:
             counterForFullDay = 0
             counterForHalfDay = 0
