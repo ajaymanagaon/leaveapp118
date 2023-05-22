@@ -75,20 +75,23 @@ def viewTeamfun():
 
 @app.route('/employee details')
 def list_all_users():
-    if 'user' in session:
-        sb = EmployeeProfileDAL()
-        corpid=session['user']
-        EmployeeName = corpid
-        row_return = sb.read_employee()
-        projectList = get_project_list()
-        employeeLevelList = get_employeeLevel_list()
-        app.logger.info('Employee Details page viewed by : %s', corpid)
-        AdminReturn = Admin()
-        if AdminReturn == "Yes":
-            return render_template("Dashboard.html", rowTable=row_return, **locals())
-        else:
-            return render_template("Dashboard.html", rowTable=row_return, EmployeeName=EmployeeName,corpid=corpid, projectList=projectList, employeeLevelList = employeeLevelList)
-    return redirect(url_for('home'))
+    try:
+        if 'user' in session:
+            sb = EmployeeProfileDAL()
+            corpid=session['user']
+            EmployeeName = corpid
+            row_return = sb.read_employee()
+            projectList = get_project_list()
+            employeeLevelList = get_employeeLevel_list()
+            app.logger.info('Employee Details page viewed by : %s', corpid)
+            AdminReturn = Admin()
+            if AdminReturn == "Yes":
+                return render_template("Dashboard.html", rowTable=row_return, **locals())
+            else:
+                return render_template("Dashboard.html", rowTable=row_return, EmployeeName=EmployeeName,corpid=corpid, projectList=projectList, employeeLevelList = employeeLevelList)
+        return redirect(url_for('home'))
+    except Exception as e:
+        return str(e)
 
 
 @app.route('/add profile', methods=['POST'])
@@ -349,100 +352,105 @@ def getsetDataforteam():
 
 @app.route('/currentMonth')
 def currentMonthDetails():
-    if 'user' in session:
-            # and (session['user'] == "conngo" or session['user'] == "consys" or session["user"] == "conddas" or session["user"] == "conravh" ):
-        corpid = session['user']
-        #now = datetime.datetime.now()
-        v = request.args.get('mon')
-        if v is not None:
-            v = v.split("-")
-            sb = EmployeeProfileDAL()
-            EmployeeName = (sb.get_current_employee_Info(corpid))[0][0]
-            d = importDateTime.date.today()
-            month = v[1]
-            year = v[0]
-            dateArray = []
-            dateArray = dateArrayMethod(int(year), int(month))
-            employeeStatusListView = gettingInfo(month, int(year))
-            AdminReturn = Admin()
-            if AdminReturn == "Yes":
-                return render_template("LeaveAppPart2.html", **locals())
+    try:
+        if 'user' in session:
+                # and (session['user'] == "conngo" or session['user'] == "consys" or session["user"] == "conddas" or session["user"] == "conravh" ):
+            corpid = session['user']
+            #now = datetime.datetime.now()
+            v = request.args.get('mon')
+            if v is not None:
+                v = v.split("-")
+                sb = EmployeeProfileDAL()
+                EmployeeName = (sb.get_current_employee_Info(corpid))[0][0]
+                d = importDateTime.date.today()
+                month = v[1]
+                year = v[0]
+                dateArray = []
+                dateArray = dateArrayMethod(int(year), int(month))
+                employeeStatusListView = gettingInfo(month, int(year))
+                AdminReturn = Admin()
+                if AdminReturn == "Yes":
+                    return render_template("LeaveAppPart2.html", **locals())
+                else:
+                    return render_template("LeaveAppPart2.html",dateArray=dateArray,employeeStatusListView=employeeStatusListView, EmployeeName=EmployeeName, corpid=corpid)
             else:
-                return render_template("LeaveAppPart2.html",dateArray=dateArray,employeeStatusListView=employeeStatusListView, EmployeeName=EmployeeName, corpid=corpid)
-        else:
-            sb = EmployeeProfileDAL()
-            EmployeeName = (sb.get_current_employee_Info(corpid))[0][0]
-            d = importDateTime.date.today()
-            month = d.strftime('%m')
-            year = d.strftime('%Y')
-            dateArray = []
-            dateArray = dateArrayMethod(int(year), int(month))
-            employeeStatusListView = []
-            employeeStatusListView = gettingInfo(month, int(year))
-            AdminReturn = Admin()
-            if AdminReturn == "Yes":
-                for employeelist in employeeStatusListView:
-                    for value in employeelist:
-                        if value is None:
-                            print(employeelist[2])
-
-                return render_template("LeaveAppPart2.html", **locals())
-            else:
-                return render_template("LeaveAppPart2.html", dateArray=dateArray,
-                                       employeeStatusListView=employeeStatusListView, EmployeeName=EmployeeName,
-                                       corpid=corpid)
-    return render_template('login.html', **locals())
+                sb = EmployeeProfileDAL()
+                EmployeeName = (sb.get_current_employee_Info(corpid))[0][0]
+                d = importDateTime.date.today()
+                month = d.strftime('%m')
+                year = d.strftime('%Y')
+                dateArray = []
+                dateArray = dateArrayMethod(int(year), int(month))
+                employeeStatusListView = []
+                employeeStatusListView = gettingInfo(month, int(year))
+                AdminReturn = Admin()
+                if AdminReturn == "Yes":
+                    for employeelist in employeeStatusListView:
+                        for value in employeelist:
+                            if value is None:
+                                print(employeelist[2])
+                    return render_template("LeaveAppPart2.html", **locals())
+                else:
+                    return render_template("LeaveAppPart2.html", dateArray=dateArray,
+                                           employeeStatusListView=employeeStatusListView, EmployeeName=EmployeeName,
+                                           corpid=corpid)
+        return render_template('login.html', **locals())
+    except Exception as e:
+        return str(e)
 
 
 
 
 @app.route('/monthlyOtherDeductions')
 def monthlyOtherDeductions():
-    if 'user' in session:
-        # and (session['user'] == "conngo" or session['user'] == "consys" or session["user"] == "conddas" or session["user"] == "conravh" ):
-        corpid = session['user']
-        # now = datetime.datetime.now()
-        v = request.args.get('mon')
-        if v is not None:
-            v = v.split("-")
-            sb = EmployeeProfileDAL()
-            EmployeeName = (sb.get_current_employee_Info(corpid))[0][0]
-            d = importDateTime.date.today()
-            month = v[1]
-            year = v[0]
-            dateArray = []
-            dateArray = dateArrayMethod(int(year), int(month))
-            # getting selected month
-            # total days in current month
-            employeeStatusListView = []
-            employeeStatusListView = gettingOtherDeductionsInfo(month, int(year))
-            AdminReturn = Admin()
-            if AdminReturn == "Yes":
-                return render_template("OtherDeductions.html", **locals())
+    try:
+        if 'user' in session:
+            # and (session['user'] == "conngo" or session['user'] == "consys" or session["user"] == "conddas" or session["user"] == "conravh" ):
+            corpid = session['user']
+            # now = datetime.datetime.now()
+            v = request.args.get('mon')
+            if v is not None:
+                v = v.split("-")
+                sb = EmployeeProfileDAL()
+                EmployeeName = (sb.get_current_employee_Info(corpid))[0][0]
+                d = importDateTime.date.today()
+                month = v[1]
+                year = v[0]
+                dateArray = []
+                dateArray = dateArrayMethod(int(year), int(month))
+                # getting selected month
+                # total days in current month
+                employeeStatusListView = []
+                employeeStatusListView = gettingOtherDeductionsInfo(month, int(year))
+                AdminReturn = Admin()
+                if AdminReturn == "Yes":
+                    return render_template("OtherDeductions.html", **locals())
+                else:
+                    return render_template("OtherDeductions.html", dateArray=dateArray,
+                                           employeeStatusListView=employeeStatusListView, EmployeeName=EmployeeName,
+                                           corpid=corpid)
             else:
-                return render_template("OtherDeductions.html", dateArray=dateArray,
-                                       employeeStatusListView=employeeStatusListView, EmployeeName=EmployeeName,
-                                       corpid=corpid)
-        else:
-            sb = EmployeeProfileDAL()
-            EmployeeName = (sb.get_current_employee_Info(corpid))[0][0]
-            d = importDateTime.date.today()
-            month = d.strftime('%m')
-            year = d.strftime('%Y')
-            dateArray = []
-            dateArray = dateArrayMethod(int(year), int(month))
-            # getting selected month
-            # total days in current month
-            employeeStatusListView = []
-            employeeStatusListView = gettingOtherDeductionsInfo(month, int(year))
-            AdminReturn = Admin()
-            if AdminReturn == "Yes":
-                return render_template("OtherDeductions.html", **locals())
-            else:
-                return render_template("OtherDeductions.html", dateArray=dateArray,
-                                       employeeStatusListView=employeeStatusListView, EmployeeName=EmployeeName,
-                                       corpid=corpid)
-    return render_template('login.html', **locals())
+                sb = EmployeeProfileDAL()
+                EmployeeName = (sb.get_current_employee_Info(corpid))[0][0]
+                d = importDateTime.date.today()
+                month = d.strftime('%m')
+                year = d.strftime('%Y')
+                dateArray = []
+                dateArray = dateArrayMethod(int(year), int(month))
+                # getting selected month
+                # total days in current month
+                employeeStatusListView = []
+                employeeStatusListView = gettingOtherDeductionsInfo(month, int(year))
+                AdminReturn = Admin()
+                if AdminReturn == "Yes":
+                    return render_template("OtherDeductions.html", **locals())
+                else:
+                    return render_template("OtherDeductions.html", dateArray=dateArray,
+                                           employeeStatusListView=employeeStatusListView, EmployeeName=EmployeeName,
+                                           corpid=corpid)
+        return render_template('login.html', **locals())
+    except Exception as e:
+        return str(e)
 
 
 
