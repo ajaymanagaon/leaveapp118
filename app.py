@@ -254,7 +254,22 @@ def labRequest():
     return render_template('login.html', **locals())
 
 
-
+@app.route('/add lab request', methods=['POST'])
+def add_lab_request():
+    if 'user' in session:
+        request_description = request.form['description']
+        project_name = request.form['ProjectName']
+        corpid = session['user']
+        sb = EmployeeProfileDAL()
+        today = date.today().strftime('%m/%d/%Y')
+        EmployeeName = (sb.get_current_employee_Info(corpid))[0][0]
+        projectList = get_project_list()
+        id = int(random.random() * 100000.0)
+        sb.add_lab_request(request_description,EmployeeName,project_name, today, id)
+        rowReturn = sb.read_lab_requests()
+        rowTable = sb.read_lab_requests()
+        return render_template('Lab.html',EmployeeName=EmployeeName,corpid=corpid, projectList=projectList, rowTable=rowTable)
+    return render_template('login.html', **locals())
 
 
 # private methods
