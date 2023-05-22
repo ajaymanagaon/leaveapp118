@@ -14,6 +14,7 @@ from shutil import copy
 from flask import Response
 from flask import session,g
 from logging.handlers import RotatingFileHandler
+from flask_mail import Mail, Message
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -177,13 +178,124 @@ def compare():
     else:
         return jsonify({'success': 'true'})
 
+@app.route('/personalLeave')
+def personalLeave():
+    if 'user' in session:
+        print("personalLeave")
+        corpid = session['user']
+        sb = EmployeeProfileDAL()
+        EmployeeName=(sb.get_current_employee_Info(corpid))[0][0]
+        EmployeeName = corpid
+        AdminReturn = Admin()
+        if AdminReturn == "Yes":
+          return render_template('personalCal.html', **locals())
+        else:
+            return render_template('personalCal.html', EmployeeName=EmployeeName,corpid=corpid)
+    return render_template('login.html', **locals())
 
 
+@app.route('/showPersonalLeave',methods=["POST","GET"])
+def showPersonalLeave():
+    sb = EmployeeProfileDAL()
+    corp_id_org=request.args.get('corpid')
+    if corp_id_org is not None:
+        rowsForManagerEmployee = sb.readTotalLeavesForAnEmployee(corp_id_org)
+        return jsonify(rowsForManagerEmployee)
+    return render_template('login.html', **locals())
+
+@app.route('/getCurrentUser', methods=["GET"])
+def getCurrentUser():
+    if 'user' in session:
+        corpid=session['user']
+        return jsonify(corpid)
+    return jsonify("false")
 
 
+@app.route('/applyLeave' ,methods=["POST", "GET"])
+def applyLeave():
+    if 'user' in session:
+        print("applyLeave")
+        date = request.form['Date']
+        leaveType=request.form['LeaveType']
+        corpid=request.form['CorpID']
+        sb = EmployeeProfileDAL()
+        sb.submit_leaves(date, corpid,leaveType)
+        EmployeeName = (sb.get_current_employee_Info(corpid))[0][0]
+        app.logger.info('Leave applied for %s on %s by: %s', corpid, date, corpid)
+        return jsonify(success='true')
+    return render_template('login.html', **locals())
+
+@app.route('/send-mail', methods=['POST'])
+def send_mail():
+    try:
+        corpid = session['user']
+        sb = EmployeeProfileDAL()
+
+        EmployeeName = (sb.get_current_employee_Info(corpid))[0][0]
+        EmployeeEmail = (sb.get_current_employee_Info(corpid))[0][1]
+
+        if len(sb.gettingRespectiveManagerEmail(corpid)) != 0:
+            ManagerEmail=sb.gettingRespectiveManagerEmail(corpid)[0][0]
+        else:
+            ManagerEmail = EmployeeEmail
+
+        date = request.form['Date']
+        leaveType=request.form['LeaveType']
+        corpID=request.form['CorpID']
+        CalKey=request.form['CalKey']
+
+        EmployeeEmailFromManager=(sb.get_current_employee_Info(corpID))[0][1]
+        EmployeeNameFromManager=(sb.get_current_employee_Info(corpID)[0][0])
+
+        if CalKey == 'pCal':
+            msg = Message("Leave Applied ",
+                          sender="noreplywaters@gmail.com",
+                          recipients=[EmployeeEmail,ManagerEmail]
+                          )
+            msg.body = "Hello "+EmployeeName+" have Successfully Applied for Leave on "\
+                       +date+" as "+leaveType
+            mail.send(msg)
+            return jsonify("Mail Sent!!!")
+        else:
+            msg = Message("Leave Applied ",
+                          sender="noreplywaters@gmail.com",
+                          recipients=[EmployeeEmailFromManager, EmployeeEmail]
+                          )
+            msg.body = "Hello " + EmployeeNameFromManager + " have Successfully Applied for Leave on " \
+                       + date + " as " + leaveType
+            mail.send(msg)
+            return jsonify("Mail Sent!!!")
+    except Exception as e:
+        return str(e)
 
 
+@app.route('/dj',methods=["GET"])
+def jsondata():
+    with open("static/json/pi.json",'r', encoding='utf-8-sig') as json_file:
+        json_data = json.load(json_file)
+        sb=EmployeeProfileDAL()
+        print("-----------------------------------")
+        print("-----------------------------------")
+    return jsonify(json_data)
 
+
+@app.route('/labRequest')
+def labRequest():
+    if 'user' in session:
+        print("personalLeave")
+        corpid = session['user']
+        sb = EmployeeProfileDAL()
+        EmployeeName=(sb.get_current_employee_Info(corpid))[0][0]
+        EmployeeName = corpid
+        projectList = get_project_list()
+        sb = EmployeeProfileDAL()
+        rowTable = sb.read_lab_requests()
+        AdminReturn = Admin()
+        if AdminReturn == "Yes":
+          return render_template('Lab.html', **locals())
+        else:
+            return render_template('Lab.html', EmployeeName=EmployeeName,corpid=corpid, projectList=projectList, rowTable=rowTable)
+    return render_template('login.html', **locals())
 
 
 
@@ -219,6 +331,7 @@ def get_employeeLevel_list():
     for value in ReadJson()['EmployeeLevelDetails']:
         employeeLevelList.append(value['levelName'])
     return employeeLevelList
+
 
 
 if __name__ == '__main__':

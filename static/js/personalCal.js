@@ -28,36 +28,15 @@ var options = {
                                 dataType: 'json',
                                 success: function (data)
                                 {
-//                                  alert("inside full day success")
-                                    $(daySelectEvent).css('background-color', 'red');
-                                    $.ajax({
-                                        data:{
-                                            Date:a,
-                                            LeaveType:"FullDay",
-                                            CorpID:corpID,
-                                            CalKey:'pCal'
-                                        },
-                                        type:"POST",
-                                        dataType:'json',
-                                        url:'/send-mail',
-                                        success:function()
-                                        {
-                                            HoldOn.close()
-                                        },
-                                        error:function()
-                                        {
-                                        //alert("Not sent")
-
-                                        }
-                                    })
+                                    alert("Full Day Leave applied Successfully");
                                 },
                                 error: function (error)
                                 {
-                                    alert("inside full day error")
+                                    alert("Error Occured when saving leave, please try later");
 
                                 },
                                 complete: function () {
-
+                                    window.location.href = '/personalLeave'
                                 }
                          })
             })
@@ -78,36 +57,14 @@ var options = {
                                 dataType: 'json',
                                 success: function (data)
                                 {
-                                    console.log(data)
-                                    $(daySelectEvent).css('background-color', 'blue');
-                                    $.ajax({
-                                        data:{
-                                            Date:a,
-                                            LeaveType:"HalfDay",
-                                            CorpID:corpID,
-                                            CalKey:'pCal'
-                                        },
-                                        type:"POST",
-                                        dataType:'json',
-                                        url:'/send-mail',
-                                        success:function()
-                                        {
-                                            HoldOn.close()
-
-                                        },
-                                        error:function()
-                                        {
-                                        //alert("Not sent")
-
-                                        }
-                                    })
+                                    alert("Half Day Leave applied Successfully");
                                 },
                                 error: function (error)
                                 {
-
-
+                                    alert("Error Occured when saving leave, please try later");
                                 },
                                 complete: function () {
+                                    window.location.href = '/personalLeave'
                                 }
                          })
             })
@@ -126,37 +83,14 @@ var options = {
                                 dataType: 'json',
                                 success: function (data)
                                 {
-                                  //alert("inside Non-WIPL success")
-                                    $(daySelectEvent).css('background-color', 'gray');
-                                    $.ajax({
-                                        data:{
-                                            Date:a,
-                                            LeaveType:"Non-WIPL",
-                                            CorpID:corpID,
-                                            CalKey:'pCal'
-                                        },
-                                        type:"POST",
-                                        dataType:'json',
-                                        url:'/send-mail',
-                                        success:function()
-                                        {
-                                            HoldOn.close()
-                                        },
-                                        error:function()
-                                        {
-                                        //alert("Not sent")
-
-                                        }
-                                    })
-                                      //HoldOn.close()
+                                    alert("Half Day Leave applied Successfully");
                                 },
                                 error: function (error)
                                 {
-                                    alert("inside Non-WIPL  error")
-
+                                    alert("Error Occured when saving leave, please try later");
                                 },
                                 complete: function () {
-
+                                    window.location.href = '/personalLeave'
                                 }
                          })
             })
@@ -177,10 +111,10 @@ var options = {
         ajaxCallForGettingLeaves(id)
         },
       navLinks: true, // can click day/week names to navigate views
-      <!--selectable: true,  for a combine selection-->
+      selectable: true, 
       selectHelper: true,
       editable: true,
-      <!--eventLimit: true, // allow "more" link when too many events-->
+      eventLimit: true, // allow "more" link when too many events-->
         dayClick: function(date)
         {
             console.log($(this).attr("data-date"))
@@ -299,11 +233,6 @@ function jsonDataForWatersHolidays(){
             for (var i = 0;i<data["waters holidays"].length;i++)
             {
                 holidays[i]=data["waters holidays"][i]
-//                console.log(this)
-//                if(this == holidays[i]){
-//                    console.log(holidays[i])
-//                    break
-//                }
             }
         },
         error:function(error){
